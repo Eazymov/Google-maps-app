@@ -5,19 +5,26 @@
 </template>
 
 <script>
+  /* @flow */
+  import Vue from 'vue';
+  import Component from 'vue-class-component';
   import AppGoogleMap from './components/AppGoogleMap.vue';
   import AppSidebar from './components/AppSidebar.vue';
 
-  export default {
+  @Component({
     components: {
       AppGoogleMap,
       AppSidebar
-    },
+    }
+  })
 
+  class App extends Vue {
     created () {
       this.$store.commit('loadMarkers');
     }
   }
+
+  export default App;
 </script>
 
 <style lang="sass">

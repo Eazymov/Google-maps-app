@@ -5,7 +5,9 @@
 </template>
 
 <script>
-  /* @flow */
+  /**
+   * @flow
+   */
   import Vue from 'vue';
   import Component from 'vue-class-component';
   import AppGoogleMap from './components/AppGoogleMap.vue';

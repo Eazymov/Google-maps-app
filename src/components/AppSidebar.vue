@@ -29,60 +29,71 @@
     App-marker-objects
 </template>
 
-<script>
+<script lang="js">
+  /**
+   * @flow
+   */
+  import Vue from 'vue';
+  import Component from 'vue-class-component';
   import AppMarkerObjects from './AppMarkerObjects.vue';
+  import { mapActions } from 'vuex';
 
-  export default {
+  @Component({
+    name: 'AppSidebar',
     components: {
       AppMarkerObjects
     },
-
-    data: () => ({
-      filter: ''
-    }),
-
-    computed: {
-      markers () {
-        return this.$store.state.markers;
-      },
-
-      activeMarker () {
-        return this.$store.state.activeMarker;
-      },
-
-      filteredMarkers () {
-        const filter = this.filter;
-
-        return this.markers
-          .filter(marker => marker.title.match(filter));
-      }
-    },
-
     methods: {
-      deleteMarker (id) {
-        this.$store.dispatch('deleteMarker', id);
-      },
+      ...mapActions([
+        'updateMarker',
+        'changeActiveMarker'
+      ])
+    }
+  })
 
-      updateMarker (marker) {
-        const { id, title } = marker;
-        const updates = {
-          id,
-          property: 'title',
-          value: title
-        };
+  class AppSidebar extends Vue {
+    filter: string = '';
 
-        this.$store.dispatch('updateMarker', updates);
-      },
+    get markers (): any {
+      return this.$store.state.markers;
+    }
 
-      setActiveMarker (marker) {
-        const { lat, lng } = marker.position;
-        const coords = { lat, lng };
+    get activeMarker (): any {
+      return this.$store.state.activeMarker;
+    }
 
-        this.$store.dispatch('changeActiveMarker', coords);
-        this.$store.commit('setMapCenter', coords);
-      }
+    get filteredMarkers (): any {
+      const filter = this.filter;
+
+      return this.markers
+        .filter(marker => marker.title.match(filter));
+    }
+
+    deleteMarker (id: string): void {
+      this.$store.dispatch('deleteMarker', id);
+    }
+
+    updateMarker (marker: any): void {
+      const { id, title } = marker;
+      const updates = {
+        id,
+        property: 'title',
+        value: title
+      };
+
+      this.updateMarker(updates);
+    }
+
+    setActiveMarker (marker: any): void {
+      const { lat, lng } = marker.position;
+      const coords = { lat, lng };
+
+      this.changeActiveMarker(coords);
+      this.$store.commit('setMapCenter', coords);
     }
   }
+
+  export default AppSidebar;
 </script>
 
 <style lang="sass">

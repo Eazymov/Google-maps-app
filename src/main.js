@@ -7,7 +7,7 @@ import './assets/vue-material';
 
 Vue.config.productionTip = false;
 
-/* eslint-disable no-nesw */
+/* eslint-disable no-new */
 new Vue({
   el: '#App',
   store,

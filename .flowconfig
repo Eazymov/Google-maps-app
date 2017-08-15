@@ -1,5 +1,8 @@
 [ignore]
-
+node_modules/
+build/
+config/
+static/
 [include]
 
 [libs]
@@ -7,3 +10,5 @@
 [lints]
 
 [options]
+module.file_ext=.vue
+module.file_ext=.js

@@ -23,57 +23,71 @@
            md-icon close
 </template>
 
-<script>
-  export default {
-    data: () => ({
-      name: ''
-    }),
+<script lang="js">
+  /**
+   * @flow
+   */
+  import Vue from 'vue';
+  import Component from 'vue-class-component';
+  import { mapActions } from 'vuex';
 
-    computed: {
-      marker () {
-        return this.$store.state.activeMarker;
-      }
-    },
-
+  @Component({
+    name: 'AppMarkerObjects',
     methods: {
-      addObject () {
-        const name = this.name.trim();
+      ...mapActions([
+        'addMarkerObject',
+        'updateObject',
+        'deleteObject'
+      ])
+    }
+  })
 
-        if (!name.length) return;
+  class AppMarkerObjects extends Vue {
+    name: string = '';
 
-        const markerID = this.marker.id;
-        const id = (Date.now()).toString();
-        const object = {
-          id,
-          name
-        };
+    get marker () {
+      return this.$store.state.activeMarker;
+    }
 
-        this.$store.dispatch('addMarkerObject', { markerID, object });
+    addObject () {
+      const name = this.name.trim();
 
-        this.name = '';
-      },
+      if (!name.length) return;
 
-      updateObject (id, name) {
-        const markerID = this.marker.id;
-        const objectID = id;
-        const objectName = name.trim();
-        const params = {
-          markerID,
-          objectID,
-          objectName
-        };
+      const markerID = this.marker.id;
+      const id = (Date.now()).toString();
+      const object = {
+        id,
+        name
+      };
 
-        this.$store.dispatch('updateObject', params);
-      },
+      this.addMarkerObject({ markerID, object });
 
-      deleteObject (id) {
-        const markerID = this.marker.id;
-        const objectID = id;
+      this.name = '';
+    }
 
-        this.$store.dispatch('deleteObject', { markerID, objectID });
-      }
+    updateObject (id, name) {
+      const markerID = this.marker.id;
+      const objectID = id;
+      const objectName = name.trim();
+      const params = {
+        markerID,
+        objectID,
+        objectName
+      };
+
+      this.updateObject(params);
+    }
+
+    deleteObject (id) {
+      const markerID = this.marker.id;
+      const objectID = id;
+
+      this.deleteObject({ markerID, objectID });
     }
   }
+
+  export default AppMarkerObjects;
 </script>
 
 <style lang="sass">

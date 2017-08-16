@@ -43,5 +43,9 @@ export default {
 
   setMapCenter ({ commit }, coords) {
     commit('setMapCenter', coords);
+  },
+
+  loadMarkers ({ commit }) {
+    commit('loadMarkers');
   }
 }

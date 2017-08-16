@@ -5,7 +5,6 @@
 </template>
 
 <script lang="js">
-/* @flow */
   /**
    * @flow
    */
@@ -13,17 +12,23 @@
   import Component from 'vue-class-component';
   import AppGoogleMap from './components/AppGoogleMap.vue';
   import AppSidebar from './components/AppSidebar.vue';
+  import { mapActions } from 'vuex';
 
   @Component({
     components: {
       AppGoogleMap,
       AppSidebar
+    },
+    methods: {
+      ...mapActions([
+        'loadMarkers'
+      ])
     }
   })
 
   class App extends Vue {
     created () {
-      this.$store.commit('loadMarkers');
+      this.loadMarkers();
     }
   }
 

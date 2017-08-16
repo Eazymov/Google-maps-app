@@ -11,18 +11,19 @@ module.exports = {
   },
   // https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style
   extends: [
-    'standard',
-    'vue'
+    'vue',
+    'standard'
   ],
   // required to lint *.vue files
   plugins: [
     'html',
-    'flowtype-errors'
+    'flowtype'
   ],
   // add your custom rules here
   'rules': {
     // added 'flow' support
-    'flowtype-errors/show-errors': 2,
+    'flowtype/define-flow-type': 1,
+    'flowtype/use-flow-type': 1,
     // disable standard semi rule
     'semi': 0,
     // allow paren-less arrow functions

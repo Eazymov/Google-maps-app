@@ -4,7 +4,8 @@
     App-google-map
 </template>
 
-<script>
+<script lang="js">
+/* @flow */
   /**
    * @flow
    */

@@ -39,5 +39,9 @@ export default {
   updateObject ({ commit }, params) {
     commit('updateObject', params);
     commit('saveMarkers');
+  },
+
+  setMapCenter ({ commit }, coords) {
+    commit('setMapCenter', coords);
   }
 }

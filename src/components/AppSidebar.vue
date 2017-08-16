@@ -46,7 +46,9 @@
     methods: {
       ...mapActions([
         'updateMarker',
-        'changeActiveMarker'
+        'changeActiveMarker',
+        'deleteMarker',
+        'setMapCenter'
       ])
     }
   })
@@ -58,7 +60,7 @@
       return this.$store.state.markers;
     }
 
-    get activeMarker (): any {
+    get activeMarker (): Marker {
       return this.$store.state.activeMarker;
     }
 
@@ -70,7 +72,7 @@
     }
 
     deleteMarker (id: string): void {
-      this.$store.dispatch('deleteMarker', id);
+      this.deleteMarker(id);
     }
 
     updateMarker (marker: any): void {
@@ -89,7 +91,7 @@
       const coords = { lat, lng };
 
       this.changeActiveMarker(coords);
-      this.$store.commit('setMapCenter', coords);
+      this.setMapCenter(coords);
     }
   }
 

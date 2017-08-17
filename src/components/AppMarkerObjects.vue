@@ -1,6 +1,6 @@
 <template lang="pug">
   md-whiteframe(id="related--objects--component")
-    h3(v-if="!marker" class="title") Select a marker
+    h3(v-if="!activeMarker" class="title") Select a marker
     div(v-else id="related--objects--box")
       h3(class="title") Related objects ({{ marker.objects.length }})
 
@@ -15,47 +15,36 @@
                v-model="object.name"
                oninput="this.nextElementSibling.style.opacity = 1"
                onblur="this.nextElementSibling.style.opacity = 0"
-               @change="updateObject(object.id, object.name)")
+               @change="handleUpdateObject(object.id, object.name)")
          md-icon(class="object__edit--icon") edit
 
          md-button(class="md-icon-button object__delete--btn md-dense"
-                   @click="deleteObject(object.id)")
+                   @click="handleDeleteObject(object.id)")
            md-icon close
 </template>
 
-<script lang="js">
-  /**
-   * @flow
-   */
+<script lang="ts">
   import Vue from 'vue';
-  import Component from 'vue-class-component';
-  import { mapActions } from 'vuex';
+  import { Component } from 'vue-property-decorator';
+  import { State, Action } from 'vuex-class';
 
-  @Component({
-    name: 'AppMarkerObjects',
-    methods: {
-      ...mapActions([
-        'addMarkerObject',
-        'updateObject',
-        'deleteObject'
-      ])
-    }
-  })
-
+  @Component
   class AppMarkerObjects extends Vue {
-    name: string = '';
+    private name: string = '';
 
-    get marker () {
-      return this.$store.state.activeMarker;
-    }
+    @State activeMarker: Marker;
 
-    addObject () {
-      const name = this.name.trim();
+    @Action addMarkerObject: Function;
+    @Action updateObject: Function;
+    @Action deleteObject: Function;
+
+    private addObject () {
+      const name: string = this.name.trim();
 
       if (!name.length) return;
 
-      const markerID = this.marker.id;
-      const id = (Date.now()).toString();
+      const markerID: string = this.activeMarker.id;
+      const id: string = (Date.now()).toString();
       const object = {
         id,
         name
@@ -66,8 +55,8 @@
       this.name = '';
     }
 
-    updateObject (id, name) {
-      const markerID = this.marker.id;
+    private handleUpdateObject (id: string, name: string) {
+      const markerID = this.activeMarker.id;
       const objectID = id;
       const objectName = name.trim();
       const params = {
@@ -79,8 +68,8 @@
       this.updateObject(params);
     }
 
-    deleteObject (id) {
-      const markerID = this.marker.id;
+    private handleDeleteObject (id: string) {
+      const markerID = this.activeMarker.id;
       const objectID = id;
 
       this.deleteObject({ markerID, objectID });

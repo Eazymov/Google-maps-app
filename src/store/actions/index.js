@@ -16,7 +16,14 @@ export default {
     commit('saveCoords', marker.position);
   },
 
-  updateMarker ({ commit }, updates) {
+  updateMarker ({ commit }, marker) {
+    const { id, title } = marker;
+    const updates = {
+      id,
+      property: 'title',
+      value: title
+    };
+
     commit('updateMarker', updates);
     commit('saveMarkers');
   },

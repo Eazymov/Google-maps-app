@@ -10,152 +10,142 @@
                      ref="createMarkerDialog")
 </template>
 
-<script>
-  export default {
-    data: () => ({
-      map: null,
-      markers: [],
-      markerTitle: '',
-      createMarkerCallback: Function
-    }),
+<script lang="ts">
+  import Vue from 'vue';
+  import { Component, Watch } from 'vue-property-decorator';
+  import { State, Action } from 'vuex-class';
 
-    computed: {
-      GoogleMap () {
-        return this.$store.state.GoogleMap;
-      },
+  const gmaps = window.google.maps;
 
-      storeMarkers () {
-        return this.$store.state.markers;
-      },
+  @Component
+  class AppGoogleMap extends Vue {
+    private map: GMap;
+    private markers = [];
+    private markerTitle = '';
+    private createMarkerCallback = Function;
+    
+    @State('markers') storeMarkers: Marker[];
+    @State createMarkerDialog: any;
+    @State currentMapCenter: Position;
 
-      createMarkerDialog () {
-        return this.$refs.createMarkerDialog;
-      },
+    @Action changeActiveMarker: Function;
 
-      currentMapCenter () {
-        return this.$store.state.currentMapCenter;
-      },
+    get lastCoords (): Position {
+      const Moscow = [55.75, 37.62];
+      const savedCoords = localStorage.getItem('lastCoords')
+      const coords = savedCoords ? JSON.parse(savedCoords) : Moscow;
 
-      lastCoords () {
-        const Moscow = [55.75, 37.62];
-        const savedCoords = localStorage.getItem('lastCoords')
-        const coords = savedCoords ? JSON.parse(savedCoords) : Moscow;
+      return coords;
+    }
 
-        return coords;
-      },
+    get mapCanvas () {
+      return this.$refs.mapCanvas;
+    }
 
-      mapCanvas () {
-        return this.$refs.mapCanvas;
+    private initializeMap () {
+      const coords: Position = this.lastCoords;
+      const center = new gmaps.LatLng(...coords);
+      const myOptions = {
+        zoom: 10,
+        center,
+        mapTypeId: gmaps.MapTypeId.ROADMAP
       }
-    },
 
-    methods: {
-      initializeMap () {
-        const GoogleMap = this.GoogleMap;
-        const coords = this.lastCoords;
-        const center = new GoogleMap.LatLng(...coords);
-        const myOptions = {
-          zoom: 10,
-          center,
-          mapTypeId: GoogleMap.MapTypeId.ROADMAP
-        }
+      this.map = new gmaps.Map(this.mapCanvas, myOptions);
+    }
 
-        this.map = new GoogleMap.Map(this.mapCanvas, myOptions);
-      },
+    private setMarkers () {
+      this.markers = this.storeMarkers.map((marker: Marker) => {
+        const { id, position, title } = marker;
+        const mapMarker = new gmaps.Marker({
+          id,
+          position,
+          title
+        });
 
-      setMarkers () {
-        const GoogleMap = this.GoogleMap;
-
-        this.markers = this.storeMarkers.map(marker => {
-          const { id, position, title } = marker;
-          const MapMarker = new GoogleMap.Marker({
-            id,
-            position,
-            title
-          });
-
-          GoogleMap.event.addListener(MapMarker, 'click', event => {
-            this.setActiveMarker(event);
-          })
-
-          return MapMarker;
+        mapMarker.addListener('click', (event: MouseEvent) => {
+          this.setActiveMarker(event);
         })
 
-        this.placeMarkers();
-      },
+        return mapMarker;
+      })
 
-      clearMarkers () {
-        this.markers.forEach(marker => {
-          marker.setMap(null);
-        })
-      },
+      this.placeMarkers();
+    }
 
-      placeMarkers () {
-        const { map } = this;
+    private clearMarkers () {
+      this.markers.forEach((marker: Marker) => {
+        marker.setMap(null);
+      })
+    }
 
-        this.markers.forEach(marker => {
-          marker.setMap(map);
-        })
-      },
+    private placeMarkers () {
+      const { map } = this;
 
-      setActiveMarker (marker) {
-        const lat = marker.latLng.lat();
-        const lng = marker.latLng.lng();
-        const coords = { lat, lng };
+      this.markers.forEach((marker: Marker) => {
+        marker.setMap(map);
+      })
+    }
 
-        this.$store.dispatch('changeActiveMarker', coords);
-      },
+    private setActiveMarker (marker: Marker): void {
+      const lat = marker.latLng.lat();
+      const lng = marker.latLng.lng();
+      const coords = { lat, lng };
 
-      addMarker (coords) {
-        this.createMarkerCallback = (submit) => {
-          if (submit === 'cancel') return;
+      this.changeActiveMarker(coords);
+    }
 
-          const title = this.markerTitle.trim();
+    private addMarker (coords: Position) {
+      this.createMarkerCallback = (submit): void => {
+        if (submit === 'cancel') return;
 
-          if (title === '') return;
+        const title = this.markerTitle.trim();
 
-          const lat = coords.lat();
-          const lng = coords.lng();
-          const id = (Date.now()).toString();
-          const objects = [];
-          const marker = {
-            id,
-            position: { lat, lng },
-            title,
-            objects
-          };
+        if (title === '') return;
 
-          this.$store.dispatch('addMarker', marker);
-        }
+        const lat = coords.lat;
+        const lng = coords.lng;
+        const id = (Date.now()).toString();
+        const objects: any = [];
+        const marker = {
+          id,
+          position: { lat, lng },
+          title,
+          objects
+        };
 
-        this.createMarkerDialog.open();
+        this.$store.dispatch('addMarker', marker);
       }
-    },
+
+      this.createMarkerDialog.open();
+    }
 
     mounted () {
       this.initializeMap();
       this.setMarkers();
 
-      this.GoogleMap.event.addListener(this.map, 'click', event => {
+      this.map.addListener('click', (event: google.maps.MouseEvent) => {
         this.addMarker(event.latLng);
       })
 
-      this.GoogleMap.event.addListener(this.map, 'mousedown', event => {
+      this.map.addListener('mousedown', (event: Event) => {
         this.$store.commit('setActiveMarker', null);
       })
-    },
+    }
 
-    watch: {
-      storeMarkers (markers) {
-        this.clearMarkers();
-        this.setMarkers(markers);
-      },
+    @Watch
+    storeMarkers (markers: Marker[]) {
+      this.clearMarkers();
+      this.setMarkers();
+    }
 
-      currentMapCenter (position) {
-        this.map.setCenter(position);
-      }
+    @Watch
+    currentMapCenter (position: Position) {
+      this.map.setCenter(position);
     }
   }
+
+  export default AppGoogleMap;
 </script>
 
 <style lang="sass">

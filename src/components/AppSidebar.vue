@@ -29,69 +29,43 @@
     App-marker-objects
 </template>
 
-<script lang="js">
-  /**
-   * @flow
-   */
+<script lang="ts">
   import Vue from 'vue';
-  import Component from 'vue-class-component';
+  import { Component } from 'vue-property-decorator';
+  import { State, Action } from 'vuex-class';
+
   import AppMarkerObjects from './AppMarkerObjects.vue';
-  import { mapActions } from 'vuex';
 
   @Component({
     name: 'AppSidebar',
     components: {
       AppMarkerObjects
-    },
-    methods: {
-      ...mapActions([
-        'updateMarker',
-        'changeActiveMarker',
-        'deleteMarker',
-        'setMapCenter'
-      ])
     }
   })
 
   class AppSidebar extends Vue {
-    filter: string = '';
+    private filter: string = '';
 
-    get markers (): any {
-      return this.$store.state.markers;
-    }
+    @State markers: Marker[];
+    @State activeMarker: Marker;
 
-    get activeMarker (): Marker {
-      return this.$store.state.activeMarker;
-    }
+    @Action updateMarker: Function;
+    @Action changeActiveMarker: Function;
+    @Action deleteMarker: Function;
+    @Action setMapCenter: Function;
 
-    get filteredMarkers (): any {
-      const filter = this.filter;
+    private get filteredMarkers (): Marker[] {
+      const filter: string = this.filter;
 
       return this.markers
-        .filter(marker => marker.title.match(filter));
+        .filter((marker: Marker) => marker.title.match(filter));
     }
 
-    deleteMarker (id: string): void {
-      this.deleteMarker(id);
-    }
+    private setActiveMarker = (marker: Marker): void => {
+      const position: Position = marker.position;
 
-    updateMarker (marker: any): void {
-      const { id, title } = marker;
-      const updates = {
-        id,
-        property: 'title',
-        value: title
-      };
-
-      this.updateMarker(updates);
-    }
-
-    setActiveMarker (marker: any): void {
-      const { lat, lng } = marker.position;
-      const coords = { lat, lng };
-
-      this.changeActiveMarker(coords);
-      this.setMapCenter(coords);
+      this.changeActiveMarker(position);
+      this.setMapCenter(position);
     }
   }
 
